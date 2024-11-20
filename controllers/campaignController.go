@@ -28,7 +28,7 @@ func CreateCampaign(c *gin.Context) {
 
 	campaign, err := services.CreateCampaign(c, userIDInt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create campaign"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err, "data": campaign})
 		return
 	}
 

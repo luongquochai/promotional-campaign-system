@@ -21,10 +21,16 @@ func GenerateVoucher(userID uint, campaignID uint) (*models.Voucher, error) {
 		return nil, errors.New("campaign not found")
 	}
 
+	// check campaign status
+	if campaign.Status != "active" {
+		// If the campaign status is not active, return an error
+		return nil, errors.New("campaign is not active")
+	}
+
 	// Campaign validity check
 	if time.Now().Before(campaign.StartDate) {
 		// If the current time is before the start date, the campaign is not active yet
-		return nil, errors.New("campaign is not active")
+		return nil, errors.New("campaign is not started yet")
 	}
 
 	if time.Now().After(campaign.EndDate) {

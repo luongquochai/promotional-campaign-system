@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -20,9 +21,26 @@ func CreateCampaign(c *gin.Context, userID uint) (*models.Campaign, error) {
 		return nil, err
 	}
 
+	if campaign.Discount <= 0 || campaign.Discount > 100 {
+		return nil, errors.New("discount_percentage must be between 1 and 100")
+	}
+
 	if campaign.StartDate.After(campaign.EndDate) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Start date must be before end date"})
-		return nil, fmt.Errorf("start date must be before end date")
+		return nil, errors.New("start date must be before end date")
+	}
+
+	// check duplicate campaign
+	dupCampaign, err := checkDuplicateCampaign(&campaign)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(dupCampaign)
+
+	if dupCampaign != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "duplicate campaign"})
+		return dupCampaign, errors.New("duplicate campaign")
 	}
 
 	if err := config.DB.Create(&campaign).Error; err != nil {
@@ -93,4 +111,19 @@ func DeleteCampaignID(c *gin.Context, userID uint, campaign *models.Campaign) er
 		return err
 	}
 	return nil
+}
+
+func checkDuplicateCampaign(req *models.Campaign) (*models.Campaign, error) {
+	var campaignModel []*models.Campaign
+	err := config.DB.Where("discount = ? AND start_date <= ? AND end_date >= ?", req.Discount, req.EndDate, req.StartDate).
+		Find(&campaignModel).Error
+	if err != nil {
+		return nil, errors.New("database query error")
+	}
+	for _, d := range campaignModel {
+		if d.Status == "active" {
+			return d, nil
+		}
+	}
+	return nil, nil
 }
