@@ -28,3 +28,17 @@ func GetUserID(c *gin.Context) (uint, error) {
 func RespondUnauthorized(c *gin.Context, err error) {
 	c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 }
+
+// ErrorResponse represents the structure of an error response
+// swagger:response ErrorResponse
+type ErrorResponse struct {
+	Message string `json:"message"` // Message describes the error
+	Code    int    `json:"code"`    // Code represents the error code
+}
+
+// SuccessResponse represents the structure of a successful response
+// swagger:response SuccessResponse
+type SuccessResponse struct {
+	Message string `json:"message"` // A message indicating the success
+	Data    any    `json:"data"`    // The data returned with the response
+}

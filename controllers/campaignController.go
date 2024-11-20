@@ -11,22 +11,27 @@ import (
 //TODO: this file to basic logic that is have account
 // We should base on role and authorization for account creation
 
-// Create a new campaign
+// CreateCampaign creates a new campaign
+// @Summary Create a new campaign
+// @Description Create a campaign with user details and return the created campaign
+// @Tags Campaign
+// @Accept  json
+// @Produce  json
+// @Param user_id header string true "User ID"
+// @Param campaign body models.Campaign true "Campaign data"
+// @Success 201 {object} models.Campaign
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Router /campaigns [post]
 func CreateCampaign(c *gin.Context) {
 	// Retrieve user_id from context
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-	// Type assertion to uint (or whatever type user_id is in your DB)
-	userIDInt, ok := userID.(uint)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id type"})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		utils.RespondUnauthorized(c, err)
 		return
 	}
 
-	campaign, err := services.CreateCampaign(c, userIDInt)
+	campaign, err := services.CreateCampaign(c, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err, "data": campaign})
 		return
@@ -35,7 +40,17 @@ func CreateCampaign(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": campaign})
 }
 
-// List all campaigns
+// ListCampaigns returns a list of campaigns
+// @Summary List all campaigns
+// @Description Get a list of all campaigns created by the user
+// @Tags Campaign
+// @Accept  json
+// @Produce  json
+// @Param user_id header string true "User ID"
+// @Success 200 {array} models.Campaign
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Router /campaigns [get]
 func ListCampaigns(c *gin.Context) {
 	// Retrieve user_id from context
 	userID, err := utils.GetUserID(c)
@@ -53,7 +68,17 @@ func ListCampaigns(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": campaigns})
 }
 
-// Get campaign details by ID
+// GetCampaign retrieves a single campaign by its ID
+// @Summary Get a campaign by ID
+// @Description Retrieve details of a specific campaign by its ID
+// @Tags Campaign
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Campaign ID"
+// @Success 200 {object} models.Campaign
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /campaigns/{id} [get]
 func GetCampaign(c *gin.Context) {
 	// Retrieve user_id from context
 	userID, err := utils.GetUserID(c)
@@ -72,7 +97,18 @@ func GetCampaign(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": campaign})
 }
 
-// Update a campaign
+// UpdateCampaign updates a campaign
+// @Summary Update a campaign
+// @Description Update the details of a specific campaign
+// @Tags Campaign
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Campaign ID"
+// @Param campaign body models.Campaign true "Campaign update data"
+// @Success 200 {object} models.Campaign
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /campaigns/{id} [put]
 func UpdateCampaign(c *gin.Context) {
 	// Retrieve user_id from context
 	userID, err := utils.GetUserID(c)
@@ -105,6 +141,16 @@ func UpdateCampaign(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": campaign})
 }
 
+// DeleteCampaign deletes a campaign
+// @Summary Delete a campaign
+// @Description Delete a specific campaign by its ID
+// @Tags Campaign
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Campaign ID"
+// @Success 200 {object} utils.SuccessResponse
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /campaigns/{id} [delete]
 func DeleteCampaign(c *gin.Context) {
 	// Retrieve user_id from context
 	userID, err := utils.GetUserID(c)

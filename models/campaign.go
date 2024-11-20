@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// Campaign represents a promotional campaign.
 type Campaign struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Name      string    `gorm:"type:varchar(255);not null" json:"name"`
@@ -16,4 +17,11 @@ type Campaign struct {
 	// Foreign key relationship with User model (if applicable)
 	CreatorID uint `gorm:"not null" json:"creator_id"`          // ID of the user who created the campaign
 	Creator   User `gorm:"foreignKey:CreatorID" json:"creator"` // The associated User who created the campaign
+}
+
+// CampaignResponse represents the response format for campaigns
+// swagger:response CampaignResponse
+type CampaignResponse struct {
+	// in: body
+	Body Campaign
 }

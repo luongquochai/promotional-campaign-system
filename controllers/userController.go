@@ -14,6 +14,16 @@ import (
 )
 
 // Register a new user
+// @Summary Register a new user
+// @Description Register a new user with email and password
+// @Tags User
+// @Accept  json
+// @Produce  json
+// @Param user body models.User true "User data"
+// @Success 201 {object} models.User
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Router /user/register [post]
 func Register(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -33,7 +43,17 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
 }
 
-// Login user and generate JWT
+// Authenticate user with email and password
+// @Summary Authenticate user
+// @Description Authenticate user and return JWT token
+// @Tags User
+// @Accept  json
+// @Produce  json
+// @Param user body models.User true "User credentials"
+// @Success 200 {object} models.UserResponse
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Router /user/login [post]
 func Login(c *gin.Context) {
 	var input models.User
 	if err := c.ShouldBindJSON(&input); err != nil {

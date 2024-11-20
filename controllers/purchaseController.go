@@ -16,6 +16,17 @@ type CampaignID struct {
 }
 
 // ProcessPurchase handles processing a discounted subscription purchase
+// @Summary Process a discounted subscription purchase
+// @Description Process a purchase with a valid voucher and apply discount
+// @Tags Purchase
+// @Accept  json
+// @Produce  json
+// @Param user_id header string true "User ID"
+// @Param campaign_id body CampaignID true "Campaign ID for the purchase"
+// @Success 200 {object} models.Purchase
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 500 {object} utils.ErrorResponse
+// @Router /purchase/create [post]
 func CreatePurchase(c *gin.Context) {
 	// Retrieve user_id from context
 	userID, err := utils.GetUserID(c)
@@ -68,6 +79,16 @@ func CreatePurchase(c *gin.Context) {
 	})
 }
 
+// GetPurchaseHistory retrieves the purchase history of a user
+// @Summary Get purchase history
+// @Description Retrieve all purchase history for a specific user
+// @Tags Purchase
+// @Accept  json
+// @Produce  json
+// @Param user_id header string true "User ID"
+// @Success 200 {array} models.Purchase
+// @Failure 500 {object} utils.ErrorResponse
+// @Router /purchase/history [get]
 func GetPurchaseHistory(c *gin.Context) {
 	// Retrieve user_id from context
 	userID, err := utils.GetUserID(c)

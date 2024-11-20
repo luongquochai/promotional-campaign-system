@@ -1,0 +1,515 @@
+definitions:
+  controllers.CampaignID:
+    properties:
+      campaign_id:
+        type: integer
+    type: object
+  controllers.CodeVoucher:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  models.Campaign:
+    properties:
+      created_at:
+        type: string
+      creator:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: The associated User who created the campaign
+      creator_id:
+        description: Foreign key relationship with User model (if applicable)
+        type: integer
+      discount_percentage:
+        type: number
+      end_date:
+        type: string
+      id:
+        type: integer
+      max_users:
+        type: integer
+      name:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Purchase:
+    properties:
+      created_at:
+        description: Automatically set the creation time
+        type: string
+      discount_applied:
+        description: Discount applied is required
+        type: number
+      final_price:
+        description: Final price after discount is required
+        type: number
+      id:
+        type: integer
+      status:
+        description: Status is required (e.g. "completed", "failed")
+        type: string
+      subscription_id:
+        description: Subscription ID (Campaign ID) is required
+        type: integer
+      transaction_id:
+        description: Transaction ID is unique and required
+        type: string
+      updated_at:
+        description: Automatically update the time when modified
+        type: string
+      user_id:
+        description: User ID is required (foreign key)
+        type: integer
+    type: object
+  models.User:
+    properties:
+      created_at:
+        description: Auto-create timestamp
+        type: string
+      email:
+        description: Required and unique
+        type: string
+      id:
+        type: integer
+      password:
+        description: Required
+        type: string
+      role:
+        description: Optional
+        type: string
+      updated_at:
+        description: Auto-update timestamp
+        type: string
+      username:
+        description: Required and unique
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      body:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: 'in: body'
+    type: object
+  models.Voucher:
+    properties:
+      campaign_id:
+        description: Campaign for which the voucher was generated
+        type: integer
+      code:
+        description: Use VARCHAR with a maximum size of 255
+        type: string
+      created_at:
+        type: string
+      discount:
+        description: Discount percentage (e.g., 0.30 for 30%)
+        type: number
+      id:
+        type: integer
+      updated_at:
+        type: string
+      used_at:
+        description: When the voucher was used (null if unused)
+        type: string
+      user_id:
+        description: User who the voucher belongs to
+        type: integer
+      valid_from:
+        description: When the voucher becomes valid
+        type: string
+      valid_to:
+        description: When the voucher expires
+        type: string
+    type: object
+  models.VoucherResponse:
+    properties:
+      body:
+        allOf:
+        - $ref: '#/definitions/models.Voucher'
+        description: 'in: body'
+    type: object
+  models.VoucherValidationResponse:
+    properties:
+      campaign_id:
+        description: The campaign ID associated with the voucher
+        type: integer
+      campaign_name:
+        description: The name of the campaign
+        type: string
+      discount_rate:
+        description: The discount rate for the campaign
+        type: number
+      is_used:
+        description: Indicates if the voucher has been used
+        type: boolean
+    type: object
+  utils.ErrorResponse:
+    properties:
+      code:
+        description: Code represents the error code
+        type: integer
+      message:
+        description: Message describes the error
+        type: string
+    type: object
+  utils.SuccessResponse:
+    properties:
+      data:
+        description: The data returned with the response
+      message:
+        description: A message indicating the success
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /campaigns:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all campaigns created by the user
+      parameters:
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Campaign'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: List all campaigns
+      tags:
+      - Campaign
+    post:
+      consumes:
+      - application/json
+      description: Create a campaign with user details and return the created campaign
+      parameters:
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      - description: Campaign data
+        in: body
+        name: campaign
+        required: true
+        schema:
+          $ref: '#/definitions/models.Campaign'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Create a new campaign
+      tags:
+      - Campaign
+  /campaigns/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific campaign by its ID
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Delete a campaign
+      tags:
+      - Campaign
+    get:
+      consumes:
+      - application/json
+      description: Retrieve details of a specific campaign by its ID
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get a campaign by ID
+      tags:
+      - Campaign
+    put:
+      consumes:
+      - application/json
+      description: Update the details of a specific campaign
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campaign update data
+        in: body
+        name: campaign
+        required: true
+        schema:
+          $ref: '#/definitions/models.Campaign'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Update a campaign
+      tags:
+      - Campaign
+  /purchase/create:
+    post:
+      consumes:
+      - application/json
+      description: Process a purchase with a valid voucher and apply discount
+      parameters:
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      - description: Campaign ID for the purchase
+        in: body
+        name: campaign_id
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CampaignID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Purchase'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Process a discounted subscription purchase
+      tags:
+      - Purchase
+  /purchase/history:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all purchase history for a specific user
+      parameters:
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Purchase'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Get purchase history
+      tags:
+      - Purchase
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: User credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Authenticate user
+      tags:
+      - User
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and password
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - User
+  /voucher/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a voucher for the user in the specified campaign
+      parameters:
+      - description: Campaign ID
+        in: body
+        name: campaign_id
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CampaignID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Voucher generated successfully
+          schema:
+            $ref: '#/definitions/models.VoucherResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Generate a new voucher
+      tags:
+      - Voucher
+  /voucher/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validate a voucher code and return voucher usage information
+      parameters:
+      - description: Voucher Code
+        in: body
+        name: code
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CodeVoucher'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Voucher validated successfully
+          schema:
+            $ref: '#/definitions/models.VoucherValidationResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Validate a voucher
+      tags:
+      - Voucher
+swagger: "2.0"

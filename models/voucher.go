@@ -20,3 +20,26 @@ type VoucherCampaign struct {
 	Voucher  *Voucher
 	Campaign *Campaign
 }
+
+// VoucherResponse represents the response format for a voucher along with its campaign
+// swagger:response VoucherResponse
+type VoucherResponse struct {
+	// in: body
+	Body Voucher
+}
+
+// VoucherCampaign represents the response format for a voucher along with its campaign
+// swagger:response VoucherCampaignResponse
+type VoucherCampaignResponse struct {
+	// in: body
+	Body VoucherCampaign
+}
+
+// VoucherValidationResponse represents the response structure when validating a voucher
+// swagger:response VoucherValidationResponse
+type VoucherValidationResponse struct {
+	IsUsed       bool    `json:"is_used"`       // Indicates if the voucher has been used
+	CampaignID   uint    `json:"campaign_id"`   // The campaign ID associated with the voucher
+	CampaignName string  `json:"campaign_name"` // The name of the campaign
+	DiscountRate float64 `json:"discount_rate"` // The discount rate for the campaign
+}

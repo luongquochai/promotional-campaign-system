@@ -1,0 +1,778 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/campaigns": {
+            "get": {
+                "description": "Get a list of all campaigns created by the user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Campaign"
+                ],
+                "summary": "List all campaigns",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Campaign"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a campaign with user details and return the created campaign",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Campaign"
+                ],
+                "summary": "Create a new campaign",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Campaign data",
+                        "name": "campaign",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Campaign"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Campaign"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/campaigns/{id}": {
+            "get": {
+                "description": "Retrieve details of a specific campaign by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Campaign"
+                ],
+                "summary": "Get a campaign by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Campaign"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the details of a specific campaign",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Campaign"
+                ],
+                "summary": "Update a campaign",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Campaign update data",
+                        "name": "campaign",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Campaign"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Campaign"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific campaign by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Campaign"
+                ],
+                "summary": "Delete a campaign",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.SuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchase/create": {
+            "post": {
+                "description": "Process a purchase with a valid voucher and apply discount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Purchase"
+                ],
+                "summary": "Process a discounted subscription purchase",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Campaign ID for the purchase",
+                        "name": "campaign_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CampaignID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Purchase"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchase/history": {
+            "get": {
+                "description": "Retrieve all purchase history for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Purchase"
+                ],
+                "summary": "Get purchase history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Purchase"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "description": "Authenticate user and return JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Authenticate user",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "description": "Register a new user with email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/voucher/generate": {
+            "post": {
+                "description": "Generate a voucher for the user in the specified campaign",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voucher"
+                ],
+                "summary": "Generate a new voucher",
+                "parameters": [
+                    {
+                        "description": "Campaign ID",
+                        "name": "campaign_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CampaignID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Voucher generated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.VoucherResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/voucher/validate": {
+            "post": {
+                "description": "Validate a voucher code and return voucher usage information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Voucher"
+                ],
+                "summary": "Validate a voucher",
+                "parameters": [
+                    {
+                        "description": "Voucher Code",
+                        "name": "code",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CodeVoucher"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Voucher validated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.VoucherValidationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllers.CampaignID": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.CodeVoucher": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Campaign": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "creator": {
+                    "description": "The associated User who created the campaign",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
+                },
+                "creator_id": {
+                    "description": "Foreign key relationship with User model (if applicable)",
+                    "type": "integer"
+                },
+                "discount_percentage": {
+                    "type": "number"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max_users": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Purchase": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Automatically set the creation time",
+                    "type": "string"
+                },
+                "discount_applied": {
+                    "description": "Discount applied is required",
+                    "type": "number"
+                },
+                "final_price": {
+                    "description": "Final price after discount is required",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "Status is required (e.g. \"completed\", \"failed\")",
+                    "type": "string"
+                },
+                "subscription_id": {
+                    "description": "Subscription ID (Campaign ID) is required",
+                    "type": "integer"
+                },
+                "transaction_id": {
+                    "description": "Transaction ID is unique and required",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "Automatically update the time when modified",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "User ID is required (foreign key)",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "Auto-create timestamp",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "Required and unique",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "description": "Required",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "Optional",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "Auto-update timestamp",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "Required and unique",
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "in: body",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.Voucher": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "description": "Campaign for which the voucher was generated",
+                    "type": "integer"
+                },
+                "code": {
+                    "description": "Use VARCHAR with a maximum size of 255",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "discount": {
+                    "description": "Discount percentage (e.g., 0.30 for 30%)",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "used_at": {
+                    "description": "When the voucher was used (null if unused)",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "User who the voucher belongs to",
+                    "type": "integer"
+                },
+                "valid_from": {
+                    "description": "When the voucher becomes valid",
+                    "type": "string"
+                },
+                "valid_to": {
+                    "description": "When the voucher expires",
+                    "type": "string"
+                }
+            }
+        },
+        "models.VoucherResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "in: body",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Voucher"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.VoucherValidationResponse": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "description": "The campaign ID associated with the voucher",
+                    "type": "integer"
+                },
+                "campaign_name": {
+                    "description": "The name of the campaign",
+                    "type": "string"
+                },
+                "discount_rate": {
+                    "description": "The discount rate for the campaign",
+                    "type": "number"
+                },
+                "is_used": {
+                    "description": "Indicates if the voucher has been used",
+                    "type": "boolean"
+                }
+            }
+        },
+        "utils.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "Code represents the error code",
+                    "type": "integer"
+                },
+                "message": {
+                    "description": "Message describes the error",
+                    "type": "string"
+                }
+            }
+        },
+        "utils.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "The data returned with the response"
+                },
+                "message": {
+                    "description": "A message indicating the success",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
