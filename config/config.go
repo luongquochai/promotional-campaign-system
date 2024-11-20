@@ -11,6 +11,7 @@ type Config struct {
 	Dsn        string `yaml:"dsn"`
 	Redis_Addr string `yaml:"redis_addr"`
 	Redis_DB   int    `yaml:"redis_db"`
+	Port       string `yaml:"port"`
 }
 
 func LoadConfig(filename string) (*Config, error) {

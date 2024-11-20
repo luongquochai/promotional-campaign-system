@@ -1,3 +1,4 @@
 dsn: "root:Chipgau164@@tcp(localhost:3306)/promotional_campaign?charset=utf8mb4&parseTime=True&loc=Local"
 redis_addr: "localhost:6379"
 redis_db: 0
+port: ":8080"

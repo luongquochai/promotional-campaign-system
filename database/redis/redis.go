@@ -30,6 +30,16 @@ func InitRedis(config *config.Config) {
 	log.Println("Redis connected successfully")
 }
 
+func CloseRedis() {
+	if Redis != nil {
+		if err := Redis.Close(); err != nil {
+			log.Printf("Error closing Redis: %v", err)
+		} else {
+			log.Println("Redis connection closed.")
+		}
+	}
+}
+
 // Set key-value pair in Redis
 func Set(key string, value string, expiration time.Duration) error {
 	return Redis.Set(ctx, key, value, expiration).Err()

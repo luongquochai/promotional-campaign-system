@@ -7,7 +7,6 @@ Folder details:
 - middlewares: Middleware logic for JWT - authentication and error handling.
 - models: Database models.
 - services: Business logic for each service.
-- repository: Interfaces and implementations for database interactions.
 - redis: Redis-related logic (for caching, session management).
 - utils: Utility functions (JWT token generation, password hashing).
 - routes: API route definitions.
