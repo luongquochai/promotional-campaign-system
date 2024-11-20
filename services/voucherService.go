@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/luongquochai/promotional-campaign-system/config"
 	"github.com/luongquochai/promotional-campaign-system/models"
 )
@@ -107,4 +109,13 @@ func ValidateVoucher(userID uint, code string) (*models.VoucherCampaign, error) 
 		Voucher:  &voucher,
 		Campaign: &campaign,
 	}, nil
+}
+
+func UpdateVoucher(c *gin.Context, voucher models.Voucher) error {
+	if err := config.DB.Model(&voucher).Update("used_at", time.Now()).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mark voucher as used"})
+		return err
+	}
+
+	return nil
 }

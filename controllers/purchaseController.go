@@ -3,11 +3,11 @@ package controllers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/luongquochai/promotional-campaign-system/config"
 	"github.com/luongquochai/promotional-campaign-system/models"
+	"github.com/luongquochai/promotional-campaign-system/services"
 	"golang.org/x/exp/rand"
 )
 
@@ -60,14 +60,12 @@ func CreatePurchase(c *gin.Context) {
 		Status:          "completed", // assuming the purchase is successful
 	}
 
-	if err := config.DB.Create(&purchase).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process purchase"})
+	if err := services.CreatePurchase(c, purchase); err != nil {
 		return
 	}
 
 	// Step 4: Mark voucher as used
-	if err := config.DB.Model(&voucher).Update("used_at", time.Now()).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mark voucher as used"})
+	if err := services.UpdateVoucher(c, voucher); err != nil {
 		return
 	}
 
@@ -93,9 +91,9 @@ func GetPurchaseHistory(c *gin.Context) {
 		return
 	}
 
-	var purchases []models.Purchase
-	if err := config.DB.Where("user_id = ?", userIDInt).Find(&purchases).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve purchases"})
+	purchases, err := services.GetPurchaseHistory(c, userIDInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving purchase history"})
 		return
 	}
 

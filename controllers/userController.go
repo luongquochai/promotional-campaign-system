@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/luongquochai/promotional-campaign-system/config"
 	"github.com/luongquochai/promotional-campaign-system/models"
+	"github.com/luongquochai/promotional-campaign-system/services"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,8 +22,8 @@ func Register(c *gin.Context) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(hashedPassword)
 
-	if err := config.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create user"})
+	if err := services.RegisterService(c, user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -37,15 +38,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
-		return
-	}
-
-	// Compare password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+	user, err := services.LoginService(c, input.Email, input.Password)
+	if err != nil {
 		return
 	}
 
