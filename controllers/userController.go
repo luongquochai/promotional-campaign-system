@@ -2,9 +2,12 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/luongquochai/promotional-campaign-system/config"
+	"github.com/luongquochai/promotional-campaign-system/database/redis"
 	"github.com/luongquochai/promotional-campaign-system/models"
 	"github.com/luongquochai/promotional-campaign-system/services"
 	"golang.org/x/crypto/bcrypt"
@@ -47,6 +50,13 @@ func Login(c *gin.Context) {
 	token, err := config.GenerateJWT(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to generate token"})
+		return
+	}
+
+	// Store user session in Redis
+	err = redis.Set(token, strconv.FormatUint(uint64(user.ID), 10), 24*time.Hour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store session in Redis"})
 		return
 	}
 

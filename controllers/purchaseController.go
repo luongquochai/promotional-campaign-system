@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/luongquochai/promotional-campaign-system/config"
 	"github.com/luongquochai/promotional-campaign-system/models"
 	"github.com/luongquochai/promotional-campaign-system/services"
+	"github.com/luongquochai/promotional-campaign-system/utils"
 	"golang.org/x/exp/rand"
 )
 
@@ -18,16 +18,9 @@ type CampaignID struct {
 // ProcessPurchase handles processing a discounted subscription purchase
 func CreatePurchase(c *gin.Context) {
 	// Retrieve user_id from context
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	// Type assertion to uint (or whatever type user_id is in your DB)
-	userIDInt, ok := userID.(uint)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id type"})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		utils.RespondUnauthorized(c, err)
 		return
 	}
 
@@ -38,9 +31,8 @@ func CreatePurchase(c *gin.Context) {
 		return
 	}
 
-	var voucher models.Voucher
-	if err := config.DB.Where("campaign_id = ? AND user_id = ? AND used_at IS NULL", campaignID.CampaignID, userIDInt).First(&voucher).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired voucher"})
+	voucher, err := services.CheckValidVoucher(c, userID, campaignID.CampaignID)
+	if err != nil {
 		return
 	}
 
@@ -52,7 +44,7 @@ func CreatePurchase(c *gin.Context) {
 
 	// Step 3: Create the purchase record
 	purchase := models.Purchase{
-		UserID:          userIDInt,
+		UserID:          userID,
 		TransactionID:   fmt.Sprintf("TXN%06d", rand.Intn(1e6)), // Unique Transaction ID
 		SubscriptionID:  voucher.CampaignID,                     // Get the subscription from the voucher
 		DiscountApplied: discountAmount,
@@ -78,20 +70,13 @@ func CreatePurchase(c *gin.Context) {
 
 func GetPurchaseHistory(c *gin.Context) {
 	// Retrieve user_id from context
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		utils.RespondUnauthorized(c, err)
 		return
 	}
 
-	// Type assertion to uint (or whatever type user_id is in your DB)
-	userIDInt, ok := userID.(uint)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id type"})
-		return
-	}
-
-	purchases, err := services.GetPurchaseHistory(c, userIDInt)
+	purchases, err := services.GetPurchaseHistory(c, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving purchase history"})
 		return

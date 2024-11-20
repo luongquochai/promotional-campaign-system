@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/luongquochai/promotional-campaign-system/config"
+	database "github.com/luongquochai/promotional-campaign-system/database/mysql"
 	"github.com/luongquochai/promotional-campaign-system/models"
 )
 
@@ -43,7 +43,7 @@ func CreateCampaign(c *gin.Context, userID uint) (*models.Campaign, error) {
 		return dupCampaign, errors.New("duplicate campaign")
 	}
 
-	if err := config.DB.Create(&campaign).Error; err != nil {
+	if err := database.DB.Create(&campaign).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create campaign"})
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func CreateCampaign(c *gin.Context, userID uint) (*models.Campaign, error) {
 
 func ListCampaigns(c *gin.Context, userID uint) ([]*models.Campaign, error) {
 	var campaigns []*models.Campaign
-	if err := config.DB.Where("creator_id = ?", userID).Find(&campaigns).Error; err != nil {
+	if err := database.DB.Where("creator_id = ?", userID).Find(&campaigns).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch campaigns"})
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func ListCampaigns(c *gin.Context, userID uint) ([]*models.Campaign, error) {
 
 func GetCampaignID(c *gin.Context, userID uint, campaignID string) (*models.Campaign, error) {
 	var campaign models.Campaign
-	if err := config.DB.Where("creator_id = ?", userID).First(&campaign, campaignID).Error; err != nil {
+	if err := database.DB.Where("creator_id = ?", userID).First(&campaign, campaignID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Campaign not found"})
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func BuildUpdateInfo(c *gin.Context) (map[string]interface{}, error) {
 }
 
 func DeleteCampaignID(c *gin.Context, userID uint, campaign *models.Campaign) error {
-	if err := config.DB.Where("creator_id = ?", userID).Delete(&campaign).Error; err != nil {
+	if err := database.DB.Where("creator_id = ?", userID).Delete(&campaign).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete campaign"})
 		return err
 	}
@@ -115,7 +115,7 @@ func DeleteCampaignID(c *gin.Context, userID uint, campaign *models.Campaign) er
 
 func checkDuplicateCampaign(req *models.Campaign) (*models.Campaign, error) {
 	var campaignModel []*models.Campaign
-	err := config.DB.Where("discount = ? AND start_date <= ? AND end_date >= ?", req.Discount, req.EndDate, req.StartDate).
+	err := database.DB.Where("discount = ? AND start_date <= ? AND end_date >= ?", req.Discount, req.EndDate, req.StartDate).
 		Find(&campaignModel).Error
 	if err != nil {
 		return nil, errors.New("database query error")
@@ -126,4 +126,14 @@ func checkDuplicateCampaign(req *models.Campaign) (*models.Campaign, error) {
 		}
 	}
 	return nil, nil
+}
+
+func UpdateCampaignID(c *gin.Context, updateInfo map[string]interface{}) error {
+	// Save the updated values to the database
+	var campaign models.Campaign
+	if err := database.DB.Model(&campaign).Updates(updateInfo).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update campaign"})
+		return err
+	}
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/luongquochai/promotional-campaign-system/services"
+	"github.com/luongquochai/promotional-campaign-system/utils"
 )
 
 type CodeVoucher struct {
@@ -14,16 +15,9 @@ type CodeVoucher struct {
 // GenerateVoucher generates a new voucher for a user in the given campaign.
 func GenerateVoucher(c *gin.Context) {
 	// Retrieve user_id from context
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	// Type assertion to uint (or whatever type user_id is in your DB)
-	userIDInt, ok := userID.(uint)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id type"})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		utils.RespondUnauthorized(c, err)
 		return
 	}
 
@@ -35,7 +29,7 @@ func GenerateVoucher(c *gin.Context) {
 	}
 
 	// Generate the voucher
-	voucher, err := services.GenerateVoucher(userIDInt, campaignID.CampaignID)
+	voucher, err := services.GenerateVoucher(userID, campaignID.CampaignID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -47,16 +41,10 @@ func GenerateVoucher(c *gin.Context) {
 
 func ValidateVoucher(c *gin.Context) {
 	// Retrieve user_id from context
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	// Type assertion to uint (or whatever type user_id is in your DB)
-	userIDInt, ok := userID.(uint)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id type"})
+	// Retrieve user_id from context
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		utils.RespondUnauthorized(c, err)
 		return
 	}
 
@@ -67,7 +55,7 @@ func ValidateVoucher(c *gin.Context) {
 	}
 
 	// Using services to validate Voucher and get VoucherCampaign
-	voucherCampaign, err := services.ValidateVoucher(userIDInt, codeVocher.Code)
+	voucherCampaign, err := services.ValidateVoucher(userID, codeVocher.Code)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

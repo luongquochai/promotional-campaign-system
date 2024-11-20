@@ -8,6 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	golang.org/x/crypto v0.23.0
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
+	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 )

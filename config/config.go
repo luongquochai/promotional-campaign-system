@@ -1,46 +1,29 @@
 package config
 
 import (
-	"context"
-	"log"
+	"fmt"
+	"os"
 
-	"github.com/go-redis/redis/v8"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"gopkg.in/yaml.v2"
 )
 
-// DB Config
-var DB *gorm.DB
-
-// Redis Config
-var RedisClient *redis.Client
-
-// Initialize the MySQL database connection
-func InitDB() {
-	var err error
-	dsn := "root:Chipgau164@@tcp(localhost:3306)/promotional_campaign?charset=utf8mb4&parseTime=True&loc=Local"
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
-	}
-	log.Println("Successfully connected to MySQL Database.")
+type Config struct {
+	Dsn        string `yaml:"dsn"`
+	Redis_Addr string `yaml:"redis_addr"`
+	Redis_DB   int    `yaml:"redis_db"`
 }
 
-// Initialize Redis connection
-func InitRedis() {
-	// Create a context for Redis client
-	ctx := context.Background()
-
-	// Initialize Redis client
-	RedisClient = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379", // Redis server address
-		DB:   0,                // Default Redis database
-	})
-
-	// Ping Redis to check connection
-	_, err := RedisClient.Ping(ctx).Result()
+func LoadConfig(filename string) (*Config, error) {
+	data, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatal("Failed to connect to Redis:", err)
+		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
-	log.Println("Successfully connected to Redis.")
+
+	var config Config
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal config file: %w", err)
+	}
+
+	return &config, nil
 }
