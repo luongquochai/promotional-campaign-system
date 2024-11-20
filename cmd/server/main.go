@@ -74,8 +74,8 @@ func gracefulShutdown(server *http.Server) {
 	}
 
 	// Cleanup resources (e.g., DB, Redis)
-	database.CloseDB() // Add this method to close database connections
-	redis.CloseRedis() // Add this method to close Redis connections
+	database.CloseDB() // Close MySQL connection
+	redis.CloseRedis() // Close Redis connection
 
-	log.Println("Server exiting")
+	log.Println("Server exited gracefully")
 }
