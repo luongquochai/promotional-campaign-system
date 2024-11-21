@@ -140,7 +140,7 @@ func ValidateVoucher(userID uint, code string) (*models.VoucherCampaign, error) 
 
 	// Fetch the campaign details
 	if err := database.DB.First(&campaign, voucher.CampaignID).Error; err != nil {
-		return nil, fmt.Errorf("failed to fetch campaign %d", voucher.CampaignID)
+		return nil, fmt.Errorf("don't found the campaign %d for this voucher", voucher.CampaignID)
 	}
 
 	return &models.VoucherCampaign{

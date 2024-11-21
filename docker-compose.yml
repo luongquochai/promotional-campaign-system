@@ -1,25 +1,52 @@
 version: '3.8'
 
 services:
+  # MySQL Service
   mysql:
-    image: mysql:latest
-    container_name: mysql-container
+    image: mysql:8.0
+    container_name: mysql_promotional_campaign
+    environment:
+      MYSQL_ROOT_PASSWORD: Chipgau164@
+      MYSQL_DATABASE: promotional_campaign
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Chipgau164@
     ports:
       - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: rootroot
-      MYSQL_DATABASE: promotional_campaign
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - campaign_network
 
+  # Redis Service
   redis:
-    image: redis:latest
-    container_name: redis-container
+    image: redis:alpine
+    container_name: redis_promotional_campaign
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
+    networks:
+      - campaign_network
+
+  # Application Service (Go App)
+  app:
+    build: .
+    container_name: promotional_campaign_app
+    environment:
+      - DSN=root:Chipgau164@@tcp(mysql:3306)/promotional_campaign?charset=utf8mb4&parseTime=True&loc=Local
+      - REDIS_ADDR=redis:6379
+      - REDIS_DB=0
+      - PORT=:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - campaign_network
+    command: go run cmd/server/main.go
 
 volumes:
   mysql_data:
-  redis_data:
+
+networks:
+  campaign_network:
+    driver: bridge

@@ -7,11 +7,19 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type DB struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Name     string `yaml:"name"`
+}
+
 type Config struct {
 	Dsn        string `yaml:"dsn"`
 	Redis_Addr string `yaml:"redis_addr"`
 	Redis_DB   int    `yaml:"redis_db"`
 	Port       string `yaml:"port"`
+	DB         DB
 }
 
 func LoadConfig(filename string) (*Config, error) {
